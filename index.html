@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>THERMOGUARD AI | Emergency Command Center</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================
+     NAVBAR
+========================================= -->
+
+<header class="top-navbar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            TG
+        </div>
+
+        <div class="brand-text">
+
+            <h1>THERMOGUARD AI</h1>
+
+            <span>
+                WILDFIRE INTELLIGENCE • COMMAND CENTER
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="system-status">
+
+        <div class="status-indicator"></div>
+
+        SYSTEM OPERATIONAL
+
+    </div>
+
+
+    <div class="live-data">
+
+        <span class="live-dot"></span>
+
+        LIVE DATA
+
+    </div>
+
+
+    <div
+        class="clock"
+        id="clock"
+    >
+        00:00:00
+    </div>
+
+</header>
+
+
+
+<!-- =========================================
+     DASHBOARD
+========================================= -->
+
+<main class="dashboard">
+
+
+    <!-- =====================================
+         MAP
+    ====================================== -->
+
+    <section class="map-card">
+
+        <div id="map"></div>
+
+
+        <!-- SEARCH + FILTER -->
+
+        <div class="map-controls">
+
+            <select
+                id="riskFilter"
+                class="risk-filter"
+            >
+                <option value="ALL">
+                    ALL RISK LEVELS
+                </option>
+
+                <option value="LOW">
+                    LOW
+                </option>
+
+                <option value="MEDIUM">
+                    MEDIUM
+                </option>
+
+                <option value="HIGH">
+                    HIGH
+                </option>
+
+                <option value="CRITICAL">
+                    CRITICAL
+                </option>
+
+            </select>
+
+
+            <div class="search-box">
+
+                <span>⌕</span>
+
+                <input
+                    type="text"
+                    id="hotspotSearch"
+                    placeholder="Search hotspot ID..."
+                >
+
+                <button id="searchBtn">
+                    SEARCH
+                </button>
+
+            </div>
+
+
+            <button
+                class="ai-button"
+                id="aiPredictBtn"
+            >
+                ◈ RUN AI PREDICTION
+            </button>
+
+        </div>
+
+
+        <!-- MAP HUD -->
+
+        <div class="map-hud">
+
+            <div class="hud-item">
+
+                <span class="hud-label">
+                    DATA SOURCE
+                </span>
+
+                <strong>
+                    NASA FIRMS
+                </strong>
+
+            </div>
+
+
+            <div class="hud-item">
+
+                <span class="hud-label">
+                    SATELLITE
+                </span>
+
+                <strong>
+                    MODIS • VIIRS
+                </strong>
+
+            </div>
+
+
+            <div class="hud-item">
+
+                <span class="hud-label">
+                    HOTSPOTS
+                </span>
+
+                <strong>
+                    247
+                </strong>
+
+            </div>
+
+
+            <div class="hud-item">
+
+                <span class="hud-label">
+                    CONFIDENCE
+                </span>
+
+                <strong>
+                    96.8%
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- MAP TITLE -->
+
+        <div class="map-title">
+
+            <div class="map-title-icon">
+                ◉
+            </div>
+
+            <div>
+
+                <span>
+                    THERMAL ACTIVITY
+                </span>
+
+                <small>
+                    REAL-TIME HOTSPOT MONITORING
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- LEGEND -->
+
+        <div class="map-legend">
+
+            <div class="legend-title">
+                RISK LEVEL
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-dot low"></span>
+
+                LOW
+
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-dot medium"></span>
+
+                MEDIUM
+
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-dot high"></span>
+
+                HIGH
+
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-dot critical"></span>
+
+                CRITICAL
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         RIGHT COLUMN
+    ====================================== -->
+
+    <aside class="right-column">
+
+
+        <!-- ALERT -->
+
+        <section
+            class="alert-card"
+            id="alertCard"
+        >
+
+            <div class="alert-icon">
+                !
+            </div>
+
+
+            <div class="alert-content">
+
+                <span>
+                    AI ALERT SYSTEM
+                </span>
+
+                <strong id="alertTitle">
+                    MONITORING ACTIVE
+                </strong>
+
+                <p id="alertMessage">
+                    No immediate emergency detected.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- RISK -->
+
+        <section
+            class="risk-card"
+            id="riskPanel"
+        >
+
+            <div class="risk-header">
+
+                <div>
+
+                    <span class="panel-label">
+                        RISK DETAILS
+                    </span>
+
+                    <h2 id="riskLevel">
+                        CRITICAL
+                    </h2>
+
+                </div>
+
+
+                <div class="risk-score">
+
+                    <span id="riskScore">
+                        92
+                    </span>
+
+                    <small>/100</small>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="risk-description"
+                id="riskDescription"
+            >
+                HIGH PROBABILITY OF FIRE PERSISTENCE
+            </div>
+
+
+            <!-- EXPLAINABLE AI -->
+
+            <div class="ai-section">
+
+                <div class="section-title">
+                    ◈ EXPLAINABLE AI
+                </div>
+
+
+                <div class="metric">
+
+                    <div class="metric-info">
+
+                        <span>
+                            Brightness
+                        </span>
+
+                        <strong id="brightnessValue">
+                            87%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-bar">
+
+                        <div
+                            class="metric-fill"
+                            id="brightnessBar"
+                            style="width:87%"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="metric">
+
+                    <div class="metric-info">
+
+                        <span>
+                            Persistence
+                        </span>
+
+                        <strong id="persistenceValue">
+                            94%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-bar">
+
+                        <div
+                            class="metric-fill"
+                            id="persistenceBar"
+                            style="width:94%"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="metric">
+
+                    <div class="metric-info">
+
+                        <span>
+                            Infrastructure Proximity
+                        </span>
+
+                        <strong id="infrastructureValue">
+                            81%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-bar">
+
+                        <div
+                            class="metric-fill"
+                            id="infrastructureBar"
+                            style="width:81%"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOCATION -->
+
+            <div class="location-box">
+
+                <div class="section-title">
+                    ◎ SELECTED ZONE
+                </div>
+
+
+                <h3 id="zoneName">
+                    THERMAL ZONE #TG-001
+                </h3>
+
+
+                <!-- INFRASTRUCTURE -->
+
+                <div class="infrastructure-box">
+
+                    <div class="section-title">
+                        🏭 INFRASTRUCTURE PROXIMITY
+                    </div>
+
+
+                    <div class="infra-item">
+
+                        <span>
+                            INDUSTRIAL AREA
+                        </span>
+
+                        <strong id="industryDistance">
+                            Analyzing...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="infra-item">
+
+                        <span>
+                            ROAD NETWORK
+                        </span>
+
+                        <strong id="roadDistance">
+                            Analyzing...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="infra-item">
+
+                        <span>
+                            SETTLEMENT
+                        </span>
+
+                        <strong id="settlementDistance">
+                            Analyzing...
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- COORDINATES -->
+
+                <div class="coordinates">
+
+                    <div>
+
+                        <span>
+                            LATITUDE
+                        </span>
+
+                        <strong id="latitude">
+                            19.0760°
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            LONGITUDE
+                        </span>
+
+                        <strong id="longitude">
+                            72.8777°
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DETECTION -->
+
+                <div class="detection">
+
+                    <span>
+                        DETECTION
+                    </span>
+
+                    <strong id="detectionStatus">
+                        PERSISTENT
+                    </strong>
+
+                </div>
+
+
+                <!-- HISTORICAL PERSISTENCE -->
+
+                <div class="persistence-box">
+
+                    <div class="section-title">
+                        ◉ HISTORICAL PERSISTENCE
+                    </div>
+
+
+                    <div class="persistence-status">
+
+                        <span>
+                            FIRE PERSISTENCE
+                        </span>
+
+                        <strong id="historicalPersistence">
+                            Analyzing...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="persistence-status">
+
+                        <span>
+                            DETECTION COUNT
+                        </span>
+
+                        <strong id="historicalCount">
+                            Analyzing...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="persistence-status">
+
+                        <span>
+                            THREAT STATUS
+                        </span>
+
+                        <strong id="historicalThreat">
+                            Analyzing...
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </aside>
+
+
+
+    <!-- =====================================
+         AI PREDICTION
+    ====================================== -->
+
+    <section class="prediction-card">
+
+
+        <div class="prediction-header">
+
+            <div>
+
+                <span class="panel-label">
+                    AI FORECAST ENGINE
+                </span>
+
+                <h2>
+                    FIRE SPREAD PREDICTION
+                </h2>
+
+            </div>
+
+
+            <div class="prediction-badge">
+                MODEL ACTIVE
+            </div>
+
+        </div>
+
+
+        <div class="prediction-grid">
+
+
+            <div class="prediction-box">
+
+                <div class="prediction-icon">
+                    ↗
+                </div>
+
+                <span>
+                    PREDICTED SPREAD
+                </span>
+
+                <strong>
+                    7.4 KM
+                </strong>
+
+                <small>
+                    NEXT 6 HOURS
+                </small>
+
+            </div>
+
+
+            <div class="prediction-box">
+
+                <div class="prediction-icon">
+                    ◈
+                </div>
+
+                <span>
+                    MODEL CONFIDENCE
+                </span>
+
+                <strong>
+                    94.6%
+                </strong>
+
+                <small>
+                    HIGH CONFIDENCE
+                </small>
+
+            </div>
+
+
+            <div class="prediction-box">
+
+                <div class="prediction-icon">
+                    ≋
+                </div>
+
+                <span>
+                    WIND IMPACT
+                </span>
+
+                <strong>
+                    HIGH
+                </strong>
+
+                <small>
+                    18 KM/H
+                </small>
+
+            </div>
+
+
+            <div class="prediction-box">
+
+                <div class="prediction-icon">
+                    ◉
+                </div>
+
+                <span>
+                    FIRE PERSISTENCE
+                </span>
+
+                <strong>
+                    89%
+                </strong>
+
+                <small>
+                    NEXT 6 HOURS
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- AI Recommendation -->
+
+        <div class="ai-recommendation">
+
+            <div class="recommendation-icon">
+                ⚡
+            </div>
+
+
+            <div>
+
+                <span>
+                    AI RECOMMENDATION
+                </span>
+
+                <strong>
+                    PRIORITIZE MONITORING OF HIGH-RISK ZONES
+                </strong>
+
+                <p>
+                    Prediction model indicates increasing thermal persistence.
+                    Continuous monitoring is recommended for the selected zone.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         RISK TREND
+    ====================================== -->
+
+    <section class="trend-card">
+
+        <div class="trend-header">
+
+            <div>
+
+                <span class="panel-label">
+                    RISK TREND
+                </span>
+
+                <h2>
+                    FIRE PROPAGATION ANALYSIS
+                </h2>
+
+            </div>
+
+
+            <div class="trend-status">
+
+                <span class="live-dot"></span>
+
+                LIVE ANALYSIS
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-container">
+
+            <canvas id="riskChart"></canvas>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!-- =====================================
+     FOOTER
+===================================== -->
+
+<footer class="footer">
+
+    <span>
+        THERMOGUARD AI
+    </span>
+
+    <span>
+        AI-POWERED WILDFIRE INTELLIGENCE
+    </span>
+
+    <span>
+        SYSTEM v1.0
+    </span>
+
+</footer>
+
+
+
+<!-- JAVASCRIPT -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>
